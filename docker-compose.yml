@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: college_rag_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./sql_app.db
+      - SECRET_KEY=prod-secret-key-rag-college-chatbot-2026
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=1440
+      - ADMIN_EMAIL=admin@college.edu
+      - ADMIN_PASSWORD=AdminPassword123!
+      - ADMIN_NAME=System Administrator
+      - SIMILARITY_THRESHOLD=0.30
+      - TOP_K_CHUNKS=4
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - ./backend/chroma_db:/app/chroma_db
+      - ./backend/sql_app.db:/app/sql_app.db
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: college_rag_frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
